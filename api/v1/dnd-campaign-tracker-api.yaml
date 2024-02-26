@@ -1,110 +1,202 @@
 openapi: 3.1.0
 info:
- title: 'D&D Campaign Tracker'
- description: |-
-   This server will be responsible for tracking data related to a D&D Campaign. This includes:
-     - Player Information such as current health and status
-     - Map images
-     - Turn information
- contact:
-   email: "dnd-tracker@example.com"
- license:
-   name: Apache 2.0
-   url: http://www.apache.org/licenses/LICENSE-2.0.html
- version: 0.0.1
+  title: D&D Campaign Tracker
+  description: >-
+    This server will be responsible for tracking data related to a D&D Campaign.
+    This includes:
+      - Player Information such as current health and status
+      - Map images
+      - Turn information
+  contact:
+    email: dnd-tracker@example.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  version: 0.0.1
 servers:
- - url: "http://localhost:5000/dnd-campaign"
+  - url: 'http://localhost:5000/dnd-campaign'
 tags:
- - name: Campaign
-   description: 'Information related to an entire campaign'
- - name: Combat
-   description: 'Information related to an active combat acounter within a campaign'
- - name: Player
-   description: 'Information related to a specific player within a campaign'
+  - name: Campaign
+    description: Information related to an entire campaign
+  - name: Character
+    description: Information related to a specific character within a campaign
 components:
- parameters:
-   CampaignIdInPath:
-     name: campaignId
-     in: path
-     required: true
-     schema:
-       type: string
-       format: uuid
- schemas:
-   Campaign:
-     type: object
-     description: 'The adventure your players are on'
-     properties:
-       id:
-         type: string
-         format: uuid
-         description: 'The unique identifier for a campaign. This will be auto generated'
-         readOnly: true
-       name:
-         type: string
-         description: 'Human readable name for the campaign'
-       externalLink:
-         type: string
-         format: uri
-         description: 'Eexternal link to the campaign details'
-     required:
-       - name
+  parameters:
+    CampaignIdInPath:
+      name: campaignId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CharacterIdInPath:
+      name: characterId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    Campaign:
+      type: object
+      description: The adventure your players are on
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The unique identifier for a campaign. This will be auto generated
+          readOnly: true
+        name:
+          type: string
+          description: Human readable name for the campaign
+        externalLink:
+          type: string
+          format: uri
+          description: External link to the campaign details
+      required:
+        - name
+    Character:
+      type: object
+      description: An adventurer that is participating in a campaign
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The unique identifier for a character. This will be auto generated
+          readOnly: true
+        name:
+          type: string
+          description: Human readable name of an character
+      required:
+        - name
 paths:
- /v1/campaign:
-   post:
-     tags:
-       - Campaign
-     operationId: createCampaign
-     summary: 'Create a campaign'
-     description: 'Create a campaign that your players are currently participating in'\
-     security: []
-     requestBody:
-       content:
-         application/json:
-           schema:
-             $ref: '#/components/schemas/Campaign'
-     responses:
-       '200':
-         description: 'Campaign created'
-         content:
-           application/json:
-             schema:
-               $ref: '#/components/schemas/Campaign'
- /v1/campaign/{campaignId}:
-   get:
-     tags:
-       - Campaign
-     operationId: getCampaignById
-     summary: 'Get a campaign'
-     description: 'Get a campaign by ID'
-     parameters:
-       - $ref: '#/components/parameters/CampaignIdInPath'
-     security: []
-     responses:
-       '200':
-         description: 'Campaign retrieved'
-         content:
-           application/json:
-             schema:
-               $ref: '#/components/schemas/Campaign'
-       '404':
-         description: 'Campaign does not exist'
-   delete:
-     tags:
-       - Campaign
-     operationId: deleteCampaignById
-     summary: 'Delete a campaign'
-     description: 'Delete a campaign with a given ID'
-     security: []
-     parameters:
-       - $ref: '#/components/parameters/CampaignIdInPath'
-     responses:
-       '200':
-         description: 'Campaign deleted'
-         content:
-           application/json:
-             schema:
-               $ref: '#/components/schemas/Campaign'
-       '404':
-         description: 'Campaign does not exist'
-
+  /v1/campaign:
+    post:
+      tags:
+        - Campaign
+      operationId: createCampaign
+      summary: Create a campaign
+      description: Create a campaign that your players are currently participating in
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Campaign'
+      responses:
+        '200':
+          description: Campaign created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+  /v1/campaign/{campaignId}:
+    get:
+      tags:
+        - Campaign
+      operationId: getCampaignById
+      summary: Get a campaign
+      description: Get a campaign by ID
+      parameters:
+        - $ref: '#/components/parameters/CampaignIdInPath'
+      security: []
+      responses:
+        '200':
+          description: Campaign retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+        '404':
+          description: Campaign does not exist
+    delete:
+      tags:
+        - Campaign
+      operationId: deleteCampaignById
+      summary: Delete a campaign
+      description: Delete a campaign with a given ID
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/CampaignIdInPath'
+      responses:
+        '204':
+          description: Campaign deleted
+        '404':
+          description: Campaign does not exist
+  /v1/campaign/{campaignId}/character:
+    post:
+      tags: 
+        -  Character
+      operationId: createCharacter
+      summary: Create a character
+      description: Create a character and place them in a campaign
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/CampaignIdInPath'
+      requestBody: 
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Character"
+      responses: 
+        '200':
+          description: Character created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Character'
+  /v1/campaign/{campaignId}/character/{characterId}:
+    get:
+      tags:
+        - Character
+      operationId: getCharacterById
+      summary: Get character
+      description: Get a character by ID
+      parameters:
+        - $ref: '#/components/parameters/CampaignIdInPath'
+        - $ref: '#/components/parameters/CharacterIdInPath'
+      security: []
+      responses:
+        '200':
+          description: Character retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Character'
+        '404':
+          description: Character does not exist
+    patch:
+      tags:
+        - Character
+      operationId: updateCharacter
+      summary: Update character
+      description: Update character with a given ID
+      parameters:
+        - $ref: '#/components/parameters/CampaignIdInPath'
+        - $ref: '#/components/parameters/CharacterIdInPath'
+      security: []
+      responses:
+        '200':
+          description: Character updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Character'
+        '404':
+          description: Character does not exist
+    delete:
+      tags:
+        - Character
+      operationId: deleteCharacter
+      summary: Delete character
+      description: Delete character with a given ID
+      parameters:
+        - $ref: '#/components/parameters/CampaignIdInPath'
+        - $ref: '#/components/parameters/CharacterIdInPath'
+      security: []
+      responses:
+        '204':
+          description: Character deleted
+        '404':
+          description: Character does not exist
+      
